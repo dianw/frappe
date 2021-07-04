@@ -24,6 +24,7 @@
         <java.version>8</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
+        <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
         <os-maven-plugin.version>1.7.0</os-maven-plugin.version>
         <protobuf-maven-plugin.version>0.6.1</protobuf-maven-plugin.version>
     </properties>
@@ -49,6 +50,13 @@
             <dependency>
                 <groupId>org.enkrip.frappe</groupId>
                 <artifactId>frappe-metadata-api</artifactId>
+                <classifier>server</classifier>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.enkrip.frappe</groupId>
+                <artifactId>frappe-metadata-api</artifactId>
+                <classifier>client</classifier>
                 <version>${project.version}</version>
             </dependency>
 

@@ -15,6 +15,7 @@
         <dependency>
             <groupId>org.enkrip.frappe</groupId>
             <artifactId>frappe-metadata-api</artifactId>
+            <classifier>server</classifier>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
