@@ -1,18 +1,12 @@
 spring:
   application:
-    name: frappe-metadata-server
-  rsocket:
-    server:
-      port: 8081
+    name: frappe-rest-server
   cloud:
     consul:
       host: localhost
       port: 8500
       discovery:
         instanceId: ${spring.application.name}:${random.value}
-        metadata:
-          rSocketPort: ${spring.rsocket.server.port}
-          rSocketTransport: TCP
 
 server:
   port: 0
