@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package metadata.time;
+
+import "google/protobuf/empty.proto";
+
+option java_package = "org.enkrip.frappe.metadata.time";
+option java_outer_classname = "TimeServiceProto";
+option java_multiple_files = true;
+
+service TimeService {
+  // Get current time stream
+  rpc GetCurrentTimeStream (google.protobuf.Empty) returns (stream GetCurrentTimeResponse) {}
+
+  // Get current time
+  rpc GetCurrentTime (google.protobuf.Empty) returns (GetCurrentTimeResponse) {}
+}
+
+message GetCurrentTimeResponse {
+  string current_time_iso = 1;
+}
