@@ -1,5 +1,7 @@
 package org.enkrip.frappe.rest.core.rsocket;
 
+import java.time.Duration;
+
 import org.reactivestreams.Publisher;
 
 import io.rsocket.Payload;
@@ -10,39 +12,45 @@ import reactor.core.publisher.Mono;
 
 class LoadBalanceRSocketWrapper implements RSocket {
     private final LoadbalanceRSocketClient rSocketClient;
+    private final Duration timeout;
 
     LoadBalanceRSocketWrapper(LoadbalanceRSocketClient rSocketClient) {
+        this(rSocketClient, 3000);
+    }
+
+    LoadBalanceRSocketWrapper(LoadbalanceRSocketClient rSocketClient, long timeoutMillis) {
         this.rSocketClient = rSocketClient;
+        this.timeout = Duration.ofMillis(timeoutMillis);
     }
 
     @Override
     public Mono<Void> fireAndForget(Payload payload) {
-        return rSocketClient.source().flatMap(rSocket -> rSocket.fireAndForget(payload));
+        return rSocketClient.source()
+                .flatMap(rSocket -> rSocket.fireAndForget(payload).timeout(timeout));
     }
 
     @Override
     public Mono<Payload> requestResponse(Payload payload) {
-        return rSocketClient.source().flatMap(rSocket -> rSocket.requestResponse(payload));
+        return rSocketClient.source()
+                .flatMap(rSocket -> rSocket.requestResponse(payload).timeout(timeout));
     }
 
     @Override
     public Flux<Payload> requestStream(Payload payload) {
-        return rSocketClient.source().flatMapMany(rSocket -> rSocket.requestStream(payload));
+        return rSocketClient.source()
+                .flatMapMany(rSocket -> rSocket.requestStream(payload).timeout(timeout));
     }
 
     @Override
     public Flux<Payload> requestChannel(Publisher<Payload> payloads) {
-        return rSocketClient.source().flatMapMany(rSocket -> rSocket.requestChannel(payloads));
+        return rSocketClient.source()
+                .flatMapMany(rSocket -> rSocket.requestChannel(payloads).timeout(timeout));
     }
 
     @Override
     public Mono<Void> metadataPush(Payload payload) {
-        return rSocketClient.source().flatMap(rSocket -> rSocket.metadataPush(payload));
-    }
-
-    @Override
-    public double availability() {
-        return 1.0;
+        return rSocketClient.source()
+                .flatMap(rSocket -> rSocket.metadataPush(payload).timeout(timeout));
     }
 
     @Override
@@ -53,10 +61,5 @@ class LoadBalanceRSocketWrapper implements RSocket {
     @Override
     public boolean isDisposed() {
         return rSocketClient.isDisposed();
-    }
-
-    @Override
-    public Mono<Void> onClose() {
-        return Mono.empty();
     }
 }
