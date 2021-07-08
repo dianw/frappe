@@ -1,45 +1,43 @@
 package org.enkrip.frappe.rest.core.rsocket;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.client.loadbalancer.Response;
+import org.springframework.cloud.client.loadbalancer.reactive.ReactiveLoadBalancer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import io.rsocket.RSocket;
-import io.rsocket.loadbalance.LoadbalanceRSocketClient;
-import io.rsocket.loadbalance.LoadbalanceTarget;
-import io.rsocket.transport.ClientTransport;
+import io.rsocket.core.RSocketConnector;
 import io.rsocket.transport.netty.client.TcpClientTransport;
+import reactor.core.publisher.Flux;
 
 @Configuration
 public class RSocketClientConfig {
+    @Autowired
+    private ReactiveLoadBalancer.Factory<ServiceInstance> loadBalancerClient;
 
     @Bean
-    public LoadbalanceRSocketClient loadbalanceRSocketClient(DiscoveryClient discoveryClient) {
-        List<ServiceInstance> instances = discoveryClient.getInstances("frappe-metadata-server");
-        List<LoadbalanceTarget> targets = instances.stream()
+    public RSocket metadataLoadBalancedRSocket() {
+        return buildLoadBalancedRSocket("frappe-metadata-server");
+    }
+
+    private RSocket buildLoadBalancedRSocket(String serviceId) {
+        ReactiveLoadBalancer<ServiceInstance> chosen = loadBalancerClient.getInstance(serviceId);
+
+        Flux<RSocket> rSockets = Flux.from(chosen.choose())
+                .filter(Response::hasServer)
+                .map(Response::getServer)
                 .filter(instance -> instance.getMetadata().containsKey("rSocketPort"))
                 .map(instance -> {
                     Map<String, String> metadata = instance.getMetadata();
                     int rSocketPort = Integer.parseInt(metadata.get("rSocketPort"));
-                    ClientTransport clientTransport = TcpClientTransport.create(instance.getHost(), rSocketPort);
-                    return LoadbalanceTarget.from(instance.getInstanceId(), clientTransport);
+                    return TcpClientTransport.create(instance.getHost(), rSocketPort);
                 })
-                .collect(Collectors.toList());
+                .flatMap(RSocketConnector::connectWith);
 
-        return LoadbalanceRSocketClient
-                .builder(s -> s.onNext(targets))
-                .roundRobinLoadbalanceStrategy()
-                .build();
+        return new LoadBalancedRSocket(rSockets);
     }
-
-    @Bean
-    public RSocket loadBalanceRSocketWrapper(LoadbalanceRSocketClient loadbalanceRSocketClient) {
-        return new LoadBalanceRSocketWrapper(loadbalanceRSocketClient);
-    }
-
 }
