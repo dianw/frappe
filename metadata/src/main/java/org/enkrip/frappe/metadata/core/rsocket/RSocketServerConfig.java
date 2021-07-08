@@ -14,14 +14,15 @@ import reactor.core.publisher.Mono;
 public class RSocketServerConfig {
 
     @Bean
-    public RequestHandlingRSocket requestHandlingRSocket(List<SelfRegistrable> selfRegistrables) {
+    public RequestHandlingRSocket requestHandlingRSocket(List<SelfRegistrable> selfRegistrableInstances) {
         RequestHandlingRSocket rSocket = new RequestHandlingRSocket();
-        selfRegistrables.forEach(rSocket::withEndpoint);
+        selfRegistrableInstances.forEach(rSocket::withEndpoint);
         return rSocket;
     }
 
     @Bean
-    public RSocketServerCustomizer rSocketServerCustomizer(RequestHandlingRSocket rSocket) {
+    public RSocketServerCustomizer rSocketRPCServerCustomizer(RequestHandlingRSocket rSocket) {
         return rSocketServer -> rSocketServer.acceptor((setup, sendingSocket) -> Mono.just(rSocket));
     }
+
 }
