@@ -13,6 +13,7 @@
         <module>metadata</module>
         <module>metadata-api</module>
         <module>rest-server</module>
+        <module>service-registry</module>
     </modules>
 
     <properties>
