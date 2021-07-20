@@ -4,6 +4,10 @@ spring:
   rsocket:
     server:
       port: 8090
+  data:
+    cassandra:
+      keyspace-name: metadata
+      local-datacenter: datacenter1
 
 server:
   port: 8080
