@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package metadata.group;
+
+import "google/protobuf/empty.proto";
+
+option java_package = "org.enkrip.frappe.metadata.feed";
+option java_outer_classname = "FeedServiceProto";
+option java_multiple_files = true;
+
+service FeedService {
+  // Find feeds
+  rpc FindFeedByGroup (FindFeedByGroupRequest) returns (stream FindFeedByGroupResponse) {}
+
+  // Follow feed
+  rpc FollowFeed (stream FollowFeedRequest) returns (google.protobuf.Empty) {}
+
+  // Unfollow feed
+  rpc UnfollowFeed (stream UnfollowFeedRequest) returns (google.protobuf.Empty) {}
+
+  // Find feed followers
+  rpc FindFeedsFollowers (FindFeedsFollowersRequest) returns (stream FindFeedsFollowersResponse);
+
+  // Find feed followings
+  rpc FindFeedsFollowings (FindFeedsFollowingsRequest) returns (stream FindFeedsFollowingsResponse);
+}
+
+message FindFeedByGroupRequest {
+  string feed_roup_id = 1;
+  string feed_id_gt = 3;
+  int32 limit = 2;
+}
+
+message FindFeedByGroupResponse {
+  string feed_group_id = 1;
+  string feed_id = 2;
+  string created_date_iso = 3;
+}
+
+// source follows target
+message FollowFeedRequest {
+  string feed_group_id_source = 1;
+  string feed_id_source = 2;
+  string feed_group_id_target = 3;
+  string feed_id_target = 4;
+}
+
+// source unfollows target
+message UnfollowFeedRequest {
+  string feed_group_id_source = 1;
+  string feed_id_source = 2;
+  string feed_group_id_target = 3;
+  string feed_id_target = 4;
+}
+
+message FindFeedsFollowersRequest {
+  string feed_group_id = 1;
+  string feed_id = 2;
+}
+
+message FindFeedsFollowersResponse {
+  string feed_group_id = 1;
+  string feed_id = 2;
+  string created_date_iso = 3;
+}
+
+message FindFeedsFollowingsRequest {
+  string feed_group_id = 1;
+  string feed_id = 2;
+}
+
+message FindFeedsFollowingsResponse {
+  string feed_group_id = 1;
+  string feed_id = 2;
+  string created_date_iso = 3;
+}

@@ -23,8 +23,8 @@ CREATE TABLE IF NOT EXISTS metadata.feeds_by_feed_group (
     feed_group_id text,
     feed_id text,
     created_date timestamp,
-    PRIMARY KEY ((feed_group_id), feed_id, created_date)
-) WITH CLUSTERING ORDER BY (feed_id DESC, created_date DESC);
+    PRIMARY KEY ((feed_group_id), feed_id)
+) WITH CLUSTERING ORDER BY (feed_id ASC);
 
 CREATE TABLE IF NOT EXISTS metadata.activities_by_feed (
     feed_group_id text,
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS metadata.feed_followers_by_feed (
     follower_feed_group_id text,
     follower_feed_id text,
     created_date timestamp,
-    PRIMARY KEY ((feed_group_id, feed_id), created_date)
+    PRIMARY KEY ((feed_group_id, feed_id), follower_feed_group_id, follower_feed_id)
 );
 
 CREATE TABLE IF NOT EXISTS metadata.feed_followings_by_feed (
@@ -50,5 +50,5 @@ CREATE TABLE IF NOT EXISTS metadata.feed_followings_by_feed (
     following_feed_group_id text,
     following_feed_id text,
     created_date timestamp,
-    PRIMARY KEY ((feed_group_id, feed_id), created_date)
+    PRIMARY KEY ((feed_group_id, feed_id), following_feed_group_id, following_feed_id)
 );
