@@ -13,7 +13,6 @@ import org.enkrip.frappe.metadata.group.GetFeedGroupsRequest;
 import org.enkrip.frappe.metadata.group.GetFeedGroupsResponse;
 import org.enkrip.frappe.metadata.group.UpdateFeedGroupScriptRequest;
 import org.enkrip.frappe.metadata.group.UpdateFeedGroupScriptResponse;
-import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Service;
 
 import com.google.protobuf.Empty;
@@ -49,7 +48,7 @@ public class FeedGroupServiceImpl implements FeedGroupService {
     public Mono<UpdateFeedGroupScriptResponse> updateFeedGroupScript(UpdateFeedGroupScriptRequest message, ByteBuf metadata) {
         return Mono.just(message)
                 .doOnNext(request -> feedGroupRepository.updateScript(request.getFeedGroupId(), request.getScript()))
-                .flatMap(request -> feedGroupRepository.findByFeedGroupId(request.getFeedGroupId()).next())
+                .flatMap(request -> feedGroupRepository.findByPrimaryKeyId(request.getFeedGroupId()).next())
                 .map(feedGroupMapper::toUpdateFeedGroupScriptResponse);
     }
 

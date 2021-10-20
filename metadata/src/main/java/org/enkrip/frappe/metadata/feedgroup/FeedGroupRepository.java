@@ -9,7 +9,7 @@ import reactor.core.publisher.Flux;
 
 @Repository
 public interface FeedGroupRepository extends ReactiveCassandraRepository<ImmutableFeedGroupEntity, ImmutableFeedGroupId> {
-    Flux<ImmutableFeedGroupEntity> findByFeedGroupId(String id);
+    Flux<ImmutableFeedGroupEntity> findByPrimaryKeyId(String id);
 
     @Query("update feed_groups set script = ?1 where feed_group_id = ?0")
     void updateScript(String id, String script);

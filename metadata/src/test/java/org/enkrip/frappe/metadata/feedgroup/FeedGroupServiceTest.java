@@ -91,7 +91,7 @@ class FeedGroupServiceTest {
     @Test
     void updateFeedGroupScript() {
         doNothing().when(feedGroupRepository).updateScript(anyString(), anyString());
-        when(feedGroupRepository.findByFeedGroupId(anyString()))
+        when(feedGroupRepository.findByPrimaryKeyId(anyString()))
                 .then(invocation -> Flux.just(ImmutableFeedGroupEntity.builder()
                         .primaryKey(ImmutableFeedGroupId.builder()
                                 .id(invocation.getArgument(0))
@@ -116,7 +116,7 @@ class FeedGroupServiceTest {
                 })
                 .then(() -> {
                     verify(feedGroupRepository).updateScript(eq("test"), eq("testScript"));
-                    verify(feedGroupRepository).findByFeedGroupId("test");
+                    verify(feedGroupRepository).findByPrimaryKeyId("test");
                 })
                 .verifyComplete();
     }
