@@ -8,16 +8,13 @@ spring:
     cassandra:
       keyspace-name: metadata
       local-datacenter: datacenter1
+  cloud:
+    consul:
+      enabled: true
+      discovery:
+        instance-id: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${random.value}}}
+        metadata:
+          rsocket-port: ${spring.rsocket.server.port}
 
 server:
   port: 8080
-
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
-  instance:
-    instanceId: ${spring.application.name}:${cachedrandom.instanceId.value}
-    metadataMap:
-      rSocketPort: ${spring.rsocket.server.port}
-      rSocketTransport: TCP

@@ -1,7 +1,7 @@
 spring:
   rsocket:
     server:
-      port: ${cachedrandom.rSocketPort.int(8381,8580)}
+      port: 8090
 
 server:
-  port: ${cachedrandom.httpPort.int(8081,8280)}
+  port: 8080

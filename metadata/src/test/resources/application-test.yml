@@ -2,7 +2,3 @@ spring:
   autoconfigure:
     exclude: |
       org.springframework.boot.autoconfigure.cassandra.CassandraAutoConfiguration
-
-eureka:
-  client:
-    enabled: false

@@ -1,43 +1,50 @@
 package org.enkrip.frappe.rest.core.rsocket;
 
+import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.loadbalancer.Response;
-import org.springframework.cloud.client.loadbalancer.reactive.ReactiveLoadBalancer;
+import org.springframework.cloud.client.discovery.ReactiveDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import io.rsocket.RSocket;
+import io.rsocket.core.RSocketClient;
 import io.rsocket.core.RSocketConnector;
+import io.rsocket.loadbalance.LoadbalanceRSocketClient;
+import io.rsocket.loadbalance.LoadbalanceTarget;
 import io.rsocket.transport.netty.client.TcpClientTransport;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Configuration
 public class RSocketClientConfig {
-    @Autowired
-    private ReactiveLoadBalancer.Factory<ServiceInstance> loadBalancerClient;
+    private static final String DISCOVERY_METADATA_RSOCKET_PORT = "rsocket-port";
 
     @Bean
-    public RSocket metadataLoadBalancedRSocket() {
-        return buildLoadBalancedRSocket("frappe-metadata-server");
+    public RSocket rSocket(RSocketClient client) {
+        return new LoadBalancedRSocket(client);
     }
 
-    private RSocket buildLoadBalancedRSocket(String serviceId) {
-        ReactiveLoadBalancer<ServiceInstance> chosen = loadBalancerClient.getInstance(serviceId);
+    @Bean(destroyMethod = "dispose")
+    public RSocketClient rSocketClient(ReactiveDiscoveryClient discoveryClient) {
+        return LoadbalanceRSocketClient.create(RSocketConnector.create(),
+                Flux.interval(Duration.ZERO, Duration.ofSeconds(15))
+                        .flatMap(i -> getRSocketLoadBalancedTargets(discoveryClient))
+                        .onBackpressureLatest()
+                        .cache(Duration.ofSeconds(15))
+        );
+    }
 
-        Flux<RSocket> rSockets = Flux.from(chosen.choose())
-                .filter(Response::hasServer)
-                .map(Response::getServer)
-                .filter(instance -> instance.getMetadata().containsKey("rSocketPort"))
+    private Mono<List<LoadbalanceTarget>> getRSocketLoadBalancedTargets(ReactiveDiscoveryClient discoveryClient) {
+        return discoveryClient.getInstances("frappe-metadata-server")
+                .filter(instance -> instance.getMetadata().containsKey(DISCOVERY_METADATA_RSOCKET_PORT))
                 .map(instance -> {
                     Map<String, String> metadata = instance.getMetadata();
-                    int rSocketPort = Integer.parseInt(metadata.get("rSocketPort"));
-                    return TcpClientTransport.create(instance.getHost(), rSocketPort);
+                    int rSocketPort = Integer.parseInt(metadata.get(DISCOVERY_METADATA_RSOCKET_PORT));
+                    TcpClientTransport clientTransport = TcpClientTransport.create(instance.getHost(), rSocketPort);
+                    return LoadbalanceTarget.from(instance.getHost() + rSocketPort, clientTransport);
                 })
-                .flatMap(RSocketConnector::connectWith);
-
-        return new LoadBalancedRSocket(rSockets);
+                .collectList();
     }
 }

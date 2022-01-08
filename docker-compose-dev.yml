@@ -1,0 +1,11 @@
+version: "3"
+services:
+  cassandra:
+    image: cassandra:4.0.1
+    ports:
+      - 9042:9042
+  consul:
+    image: consul:1.10.3
+    ports:
+      - 8500:8500/tcp
+      - 8600:8600/udp

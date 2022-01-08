@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.enkrip.frappe.metadata.group.CreateFeedGroupRequest;
 import org.enkrip.frappe.metadata.group.CreateFeedGroupResponse;
 import org.enkrip.frappe.metadata.group.DeleteFeedGroupRequest;
