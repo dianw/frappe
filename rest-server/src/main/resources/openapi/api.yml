@@ -1,0 +1,44 @@
+openapi: 3.0.0
+
+info:
+  title: Frappe
+  description: Frappe API Documentation
+  version: 0.1.0
+
+servers:
+  - url: /v1
+    description: Optional server description, e.g. Main (production) server
+
+paths:
+  /time/current:
+    get:
+      responses:
+        '200':
+          description: Get current time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCurrentTimeResponseData'
+  /time/current-stream:
+    get:
+      responses:
+        '200':
+          description: Get current time in stream
+          content:
+            text/event-stream:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GetCurrentTimeResponseData'
+
+components:
+  schemas:
+    GetCurrentTimeResponseData:
+      description: Current Time
+      type: object
+      properties:
+        currentTimeISO:
+          type: string
+      example:
+        currentTimeISO: 2022-01-08T20:49:33Z
+

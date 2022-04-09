@@ -14,6 +14,7 @@
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
+        <openapi.base-package>${groupId}.rest.openapi</openapi.base-package>
     </properties>
 
     <dependencies>
@@ -37,6 +38,21 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-consul-discovery</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger.parser.v3</groupId>
+            <artifactId>swagger-parser</artifactId>
+            <version>2.0.29</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-core</artifactId>
+            <version>2.10.5</version>
         </dependency>
 
         <dependency>
@@ -69,6 +85,35 @@
                         <goals>
                             <goal>repackage</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>${openapi-generator-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/openapi/api.yml</inputSpec>
+                            <generatorName>spring</generatorName>
+                            <templateDirectory>${project.basedir}/src/main/resources/openapi/templates</templateDirectory>
+                            <configOptions>
+                                <!-- Packages -->
+                                <apiPackage>${openapi.base-package}.api</apiPackage>
+                                <basePackage>${openapi.base-package}</basePackage>
+                                <configPackage>${openapi.base-package}.configuration</configPackage>
+                                <invokerPackage>${openapi.base-package}.api</invokerPackage>
+                                <modelPackage>${openapi.base-package}.model</modelPackage>
+                                <!-- End of Packages -->
+                                <interfaceOnly>true</interfaceOnly>
+                                <openApiNullable>false</openApiNullable>
+                                <reactive>true</reactive>
+                            </configOptions>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

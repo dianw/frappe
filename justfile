@@ -1,7 +1,8 @@
 app-version := '0.1.0'
 
 run-dev:
-
+    mvn -pl metadata -am spring-boot:run
+    mvn -pl rest-server -am spring-boot:run
 
 build-docker-image:
     mvn package -DskipTests
